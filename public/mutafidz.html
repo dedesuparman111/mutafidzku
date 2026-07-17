@@ -1507,123 +1507,59 @@
     }
 
     // ============================================================
-    // CALENDAR
+    // RANDOM SURAH (equran.id API)
     // ============================================================
-    function renderModernCalendar() {
-      const month  = state.calDate.getMonth();
-      const year   = state.calDate.getFullYear();
-      const monthNames = ["Januari","Februari","Maret","April","Mei","Juni",
-                          "Juli","Agustus","September","Oktober","November","Desember"];
-      document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+    async function loadRandomSurah() {
+      const loadEl = document.getElementById('rand-surah-loading');
+      const conEl  = document.getElementById('rand-surah-content');
+      if (!loadEl || !conEl) return;
 
-      const firstDay       = new Date(year, month, 1).getDay();
-      const daysInMonth    = new Date(year, month + 1, 0).getDate();
-      const daysInPrevMonth = new Date(year, month, 0).getDate();
-      const now = new Date();
-      const isCurrentMonth = now.getMonth() === month && now.getFullYear() === year;
+      loadEl.style.display = 'block';
+      loadEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat surat...';
+      conEl.style.display = 'none';
 
-      let html = '';
-      for (let i = firstDay - 1; i >= 0; i--) {
-        html += `<div class="cal-day-wrapper"><div class="cal-day other-month">${daysInPrevMonth - i}</div></div>`;
-      }
-      for (let i = 1; i <= daysInMonth; i++) {
-        const cls = (isCurrentMonth && i === now.getDate()) ? 'cal-day today' : 'cal-day';
-        html += `<div class="cal-day-wrapper"><div class="${cls}">${i}</div></div>`;
-      }
-      const remaining = 42 - firstDay - daysInMonth;
-      for (let i = 1; i <= remaining; i++) {
-        html += `<div class="cal-day-wrapper"><div class="cal-day other-month">${i}</div></div>`;
-      }
-      document.getElementById('calendar-days').innerHTML = html;
-    }
+      const nomor = Math.floor(Math.random() * 114) + 1;
+      try {
+        const res  = await fetch(`https://equran.id/api/v2/surat/${nomor}`);
+        const json = await res.json();
+        const s = json && json.data ? json.data : null;
+        if (!s) throw new Error('Data surat kosong');
 
-    function changeMonth(dir) {
-      state.calDate.setMonth(state.calDate.getMonth() + dir);
-      renderModernCalendar();
+        document.getElementById('rand-surah-name').innerText   = `${s.nomor}. ${s.namaLatin}`;
+        document.getElementById('rand-surah-arabic').innerText = s.nama || '';
+        document.getElementById('rand-surah-meta').innerText   =
+          `${s.tempatTurun || ''} · ${s.jumlahAyat || 0} ayat`;
+        document.getElementById('rand-surah-arti').innerText   = `Arti: ${s.arti || '-'}`;
+
+        // audioFull adalah object berisi qari => url. Ambil sesuai state.qari (mapping ke id equran).
+        const qariMap = {
+          'ar.alafasy':      '05', // Misyari Rasyid Al-Afasy
+          'ar.abdulbasit':   '01', // Abdullah Al-Juhany (fallback)
+          'ar.husary':       '02',
+          'ar.minshawi':     '03',
+          'ar.sudais':       '04'
+        };
+        const audioKey = qariMap[state.qari] || '05';
+        const audioUrl = (s.audioFull && (s.audioFull[audioKey] || s.audioFull['05'])) || '';
+        const audioEl  = document.getElementById('rand-surah-audio');
+        audioEl.src = audioUrl;
+
+        conEl.style.display = 'block';
+        loadEl.style.display = 'none';
+      } catch (err) {
+        console.error('[Random Surah]', err);
+        loadEl.innerHTML =
+          `<div class="text-danger small"><i class="fas fa-triangle-exclamation"></i> Gagal memuat surat. <button class="btn btn-sm btn-link p-0" onclick="loadRandomSurah()">Coba lagi</button></div>`;
+      }
     }
 
     // ============================================================
     // SETTINGS MODULE
     // ============================================================
-    function saveConfig() {
-      const gasUrl  = document.getElementById('cfg-gas-url').value.trim();
-      const sheetId = document.getElementById('cfg-sheet-id').value.trim();
-
-      if (!gasUrl || !sheetId) {
-        toast('Mohon isi URL GAS dan ID Spreadsheet', 'warning');
-        return;
-      }
-      if (!gasUrl.startsWith('https://script.google.com')) {
-        toast('URL GAS tidak valid. Harus diawali https://script.google.com', 'warning');
-        return;
-      }
-
-      const cfg = { gasUrl, sheetId, savedAt: new Date().toISOString() };
-      localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-      toast('Konfigurasi berhasil disimpan! Muat ulang halaman untuk menerapkan.');
-      updateStatusUI();
-      setTimeout(() => location.reload(), 2000);
-    }
-
-    async function testConnection() {
-      const cfg = loadConfig();
-      if (!cfg.gasUrl) { toast('Simpan konfigurasi terlebih dahulu', 'warning'); return; }
-
-      const statusEl = document.getElementById('conn-status');
-      const btnTest  = document.getElementById('btn-test-conn');
-      statusEl.style.display = 'block';
-      statusEl.innerHTML = '<div class="text-muted small"><i class="fas fa-spinner fa-spin me-1"></i> Mengetes koneksi ke GAS...</div>';
-      btnTest.disabled = true;
-
-      try {
-        // ✅ FIX: Gunakan action=ping yang sudah ada di Code.gs
-        const url = `${cfg.gasUrl}?action=ping&_=${Date.now()}`;
-        const res  = await fetch(url, { method: 'GET' });
-        const json = await res.json();
-        if (json.success || json.pong) {
-          statusEl.innerHTML = `<div class="alert alert-success py-2 mb-0 small">
-            <i class="fas fa-check-circle me-1"></i> Koneksi berhasil! ${json.message || 'GAS merespons dengan baik.'}</div>`;
-        } else {
-          statusEl.innerHTML = `<div class="alert alert-warning py-2 mb-0 small">
-            <i class="fas fa-exclamation-triangle me-1"></i> GAS merespons tapi ada pesan: ${JSON.stringify(json)}</div>`;
-        }
-      } catch (err) {
-        statusEl.innerHTML = `<div class="alert alert-danger py-2 mb-0 small">
-          <i class="fas fa-times-circle me-1"></i> Koneksi gagal: ${err.message}
-          <br><small>Pastikan GAS sudah di-deploy sebagai Web App dan akses diizinkan.</small></div>`;
-      } finally {
-        btnTest.disabled = false;
-      }
-    }
-
     function updateStatusUI() {
-      const cfg = loadConfig();
+      const swEl  = document.getElementById('status-sw');
+      const pwaEl = document.getElementById('status-pwa');
 
-      const gasEl   = document.getElementById('status-gas-url');
-      const sheetEl = document.getElementById('status-sheet-id');
-      const swEl    = document.getElementById('status-sw');
-      const pwaEl   = document.getElementById('status-pwa');
-
-      if (gasEl) {
-        if (cfg.gasUrl) {
-          const short = cfg.gasUrl.replace('https://script.google.com/macros/s/', '').substring(0, 20) + '...';
-          gasEl.className = 'badge bg-success small';
-          gasEl.innerText = '✓ ' + short;
-        } else {
-          gasEl.className = 'badge bg-secondary small';
-          gasEl.innerText = 'Belum diset';
-        }
-      }
-
-      if (sheetEl) {
-        if (cfg.sheetId) {
-          sheetEl.className = 'badge bg-success small';
-          sheetEl.innerText = '✓ ' + cfg.sheetId.substring(0, 12) + '...';
-        } else {
-          sheetEl.className = 'badge bg-secondary small';
-          sheetEl.innerText = 'Belum diset';
-        }
-      }
 
       if (swEl) {
         if ('serviceWorker' in navigator) {
