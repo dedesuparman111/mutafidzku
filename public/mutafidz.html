@@ -1584,12 +1584,6 @@
         pwaEl.className = isStandalone ? 'badge bg-success small' : 'badge bg-info small';
         pwaEl.innerText = isStandalone ? '✓ Installed (Standalone)' : 'Browser Tab';
       }
-
-      // Isi form dari config tersimpan
-      const gasInput   = document.getElementById('cfg-gas-url');
-      const sheetInput = document.getElementById('cfg-sheet-id');
-      if (gasInput   && cfg.gasUrl)  gasInput.value   = cfg.gasUrl;
-      if (sheetInput && cfg.sheetId) sheetInput.value = cfg.sheetId;
     }
 
     function clearApiCache() {
