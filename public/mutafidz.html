@@ -1660,7 +1660,21 @@
     // Init status UI setelah halaman load
     window.addEventListener('load', () => {
       setTimeout(updateStatusUI, 500);
+      // Role gating dari parent (hash: #role=admin|user&email=...)
+      try {
+        const params = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+        const role = params.get('role') || 'user';
+        if (role !== 'admin') {
+          ['side-settings', 'nav-settings'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+          });
+          const sec = document.getElementById('view-settings');
+          if (sec) sec.dataset.adminOnly = '1';
+        }
+      } catch (e) { console.warn('role gate error', e); }
     });
+
   </script>
 </body>
 </html>
