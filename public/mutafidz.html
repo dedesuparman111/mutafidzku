@@ -26,6 +26,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
@@ -732,6 +733,81 @@
             });
         }
       })
+    };
+
+    // ============================================================
+    // SUPABASE CLIENT (session diambil dari localStorage — same-origin dgn parent)
+    // ============================================================
+    const SB_URL  = 'https://dbhutzdiyprezzhrrcul.supabase.co';
+    const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaHV0emRpeXByZXp6aHJyY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQzMjM1NzIsImV4cCI6MjA5OTg5OTU3Mn0.WzSj03MAXCt8OuycWfjwUl5zMuIOdBMgCGvxpsYT-e8';
+    const sb = window.supabase.createClient(SB_URL, SB_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage }
+    });
+
+    function mapStudentRow(r) {
+      return {
+        ID: r.id,
+        Name: r.name,
+        BirthPlace: r.place_of_birth || '',
+        BirthDate: r.date_of_birth || '',
+        Class: r.class_name || '',
+        Guardian: r.guardian || ''
+      };
+    }
+
+    // Override GAS.run untuk aksi santri → Supabase
+    const _origGasRun = GAS.run;
+    GAS.run = async function(action, payload) {
+      try {
+        if (action === 'getStudents') {
+          const { data, error } = await sb.from('students')
+            .select('id,name,place_of_birth,date_of_birth,class_name,guardian')
+            .order('name', { ascending: true });
+          if (error) throw error;
+          return { success: true, data: (data || []).map(mapStudentRow) };
+        }
+        if (action === 'addStudent') {
+          const { data: u } = await sb.auth.getUser();
+          if (!u.user) throw new Error('Belum login');
+          const { data, error } = await sb.from('students').insert({
+            user_id: u.user.id,
+            name: payload.Name,
+            place_of_birth: payload.BirthPlace || null,
+            date_of_birth: payload.BirthDate || null,
+            class_name: payload.Class || null,
+            guardian: payload.Guardian || null
+          }).select().single();
+          if (error) throw error;
+          return { success: true, data: mapStudentRow(data) };
+        }
+        if (action === 'updateStudent') {
+          const id = payload.id || payload.ID;
+          const { data, error } = await sb.from('students').update({
+            name: payload.Name,
+            place_of_birth: payload.BirthPlace || null,
+            date_of_birth: payload.BirthDate || null,
+            class_name: payload.Class || null,
+            guardian: payload.Guardian || null
+          }).eq('id', id).select().single();
+          if (error) throw error;
+          return { success: true, data: mapStudentRow(data) };
+        }
+        if (action === 'deleteStudent') {
+          const id = payload.id || payload.ID;
+          const { error } = await sb.from('students').delete().eq('id', id);
+          if (error) throw error;
+          return { success: true };
+        }
+        if (action === 'getDashboardData') {
+          const { count } = await sb.from('students').select('*', { count: 'exact', head: true });
+          return { success: true, data: { totalStudents: count || 0 } };
+        }
+      } catch (err) {
+        console.error('[Supabase '+action+']', err);
+        return { success: false, message: err.message || String(err), data: [] };
+      }
+      // fallback ke handler lama (GAS) untuk aksi yang belum dimigrasi
+      return _origGasRun.call(GAS, action, payload);
     };
 
     // ============================================================
