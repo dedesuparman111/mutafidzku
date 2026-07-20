@@ -14,6 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
+      memorization: {
+        Row: {
+          created_at: string
+          date: string
+          from_ayah: number | null
+          id: string
+          notes: string | null
+          score: number | null
+          student_id: string | null
+          surah: string | null
+          to_ayah: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          from_ayah?: number | null
+          id?: string
+          notes?: string | null
+          score?: number | null
+          student_id?: string | null
+          surah?: string | null
+          to_ayah?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          from_ayah?: number | null
+          id?: string
+          notes?: string | null
+          score?: number | null
+          student_id?: string | null
+          surah?: string | null
+          to_ayah?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memorization_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      murojaah: {
+        Row: {
+          created_at: string
+          date: string
+          from_ayah: number | null
+          id: string
+          notes: string | null
+          student_id: string | null
+          surah: string | null
+          to_ayah: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          from_ayah?: number | null
+          id?: string
+          notes?: string | null
+          student_id?: string | null
+          surah?: string | null
+          to_ayah?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          from_ayah?: number | null
+          id?: string
+          notes?: string | null
+          student_id?: string | null
+          surah?: string | null
+          to_ayah?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "murojaah_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -38,6 +135,45 @@ export type Database = {
         }
         Relationships: []
       }
+      students: {
+        Row: {
+          class_name: string | null
+          created_at: string
+          date_of_birth: string | null
+          guardian: string | null
+          id: string
+          name: string
+          notes: string | null
+          place_of_birth: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          class_name?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          guardian?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          place_of_birth?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          class_name?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          guardian?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          place_of_birth?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -55,6 +191,27 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          settings?: Json
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
