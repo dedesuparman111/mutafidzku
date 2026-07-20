@@ -746,7 +746,8 @@
 
     function mapStudentRow(r) {
       return {
-        ID: r.id,
+        ID: r.code || r.id,
+        _uuid: r.id,
         Name: r.name,
         BirthPlace: r.place_of_birth || '',
         BirthDate: r.date_of_birth || '',
@@ -761,7 +762,7 @@
       try {
         if (action === 'getStudents') {
           const { data, error } = await sb.from('students')
-            .select('id,name,place_of_birth,date_of_birth,class_name,guardian')
+            .select('id,code,name,place_of_birth,date_of_birth,class_name,guardian')
             .order('name', { ascending: true });
           if (error) throw error;
           return { success: true, data: (data || []).map(mapStudentRow) };
