@@ -32,7 +32,7 @@ function MutafidzApp() {
   const iframeSrc = useMemo(() => {
     if (!ready) return "";
     // Pass session + admin flag via hash so mutafidz.html can consume them
-    return `/mutafidz.html#role=${isAdmin ? "admin" : "user"}&email=${encodeURIComponent(email)}`;
+    return `/index.html#role=${isAdmin ? "admin" : "user"}&email=${encodeURIComponent(email)}`;
   }, [ready, isAdmin, email]);
 
   const signOut = async () => {
