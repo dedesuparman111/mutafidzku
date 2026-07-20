@@ -782,20 +782,22 @@
           return { success: true, data: mapStudentRow(data) };
         }
         if (action === 'updateStudent') {
-          const id = payload.id || payload.ID;
+          const key = payload.id || payload.ID;
+          const col = (typeof key === 'string' && key.length === 36 && key.includes('-')) ? 'id' : 'code';
           const { data, error } = await sb.from('students').update({
             name: payload.Name,
             place_of_birth: payload.BirthPlace || null,
             date_of_birth: payload.BirthDate || null,
             class_name: payload.Class || null,
             guardian: payload.Guardian || null
-          }).eq('id', id).select().single();
+          }).eq(col, key).select().single();
           if (error) throw error;
           return { success: true, data: mapStudentRow(data) };
         }
         if (action === 'deleteStudent') {
-          const id = payload.id || payload.ID;
-          const { error } = await sb.from('students').delete().eq('id', id);
+          const key = payload.id || payload.ID;
+          const col = (typeof key === 'string' && key.length === 36 && key.includes('-')) ? 'id' : 'code';
+          const { error } = await sb.from('students').delete().eq(col, key);
           if (error) throw error;
           return { success: true };
         }
