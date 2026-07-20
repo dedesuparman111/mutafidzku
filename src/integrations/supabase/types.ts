@@ -138,6 +138,7 @@ export type Database = {
       students: {
         Row: {
           class_name: string | null
+          code: string | null
           created_at: string
           date_of_birth: string | null
           guardian: string | null
@@ -150,6 +151,7 @@ export type Database = {
         }
         Insert: {
           class_name?: string | null
+          code?: string | null
           created_at?: string
           date_of_birth?: string | null
           guardian?: string | null
@@ -162,6 +164,7 @@ export type Database = {
         }
         Update: {
           class_name?: string | null
+          code?: string | null
           created_at?: string
           date_of_birth?: string | null
           guardian?: string | null
