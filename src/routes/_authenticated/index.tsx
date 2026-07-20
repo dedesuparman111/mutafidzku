@@ -13,6 +13,7 @@ function MutafidzApp() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [email, setEmail] = useState("");
   const [showAdmin, setShowAdmin] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -50,41 +51,95 @@ function MutafidzApp() {
 
   return (
     <div style={{ position: "fixed", inset: 0 }}>
-      <div
-        style={{
-          position: "fixed",
-          top: 8,
-          right: 8,
-          zIndex: 9999,
-          display: "flex",
-          gap: 8,
-          alignItems: "center",
-          background: "rgba(0,0,0,0.55)",
-          color: "white",
-          padding: "6px 10px",
-          borderRadius: 999,
-          fontSize: 12,
-          fontFamily: "system-ui",
-        }}
-      >
-        <span>{email}</span>
-        {isAdmin && (
-          <>
-            <span style={{ background: "#0d6efd", padding: "2px 8px", borderRadius: 999 }}>admin</span>
-            <button
-              onClick={() => setShowAdmin(true)}
-              style={{ background: "#198754", color: "white", border: 0, padding: "4px 10px", borderRadius: 999, cursor: "pointer" }}
-            >
-              Pengaturan
-            </button>
-          </>
-        )}
+      <div style={{ position: "fixed", top: 12, right: 12, zIndex: 9999, fontFamily: "system-ui" }}>
         <button
-          onClick={signOut}
-          style={{ background: "#dc3545", color: "white", border: 0, padding: "4px 10px", borderRadius: 999, cursor: "pointer" }}
+          onClick={() => setMenuOpen((o: boolean) => !o)}
+          title="Menu pengguna"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 999,
+            border: 0,
+            background: "rgba(0,0,0,0.55)",
+            color: "white",
+            fontSize: 18,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backdropFilter: "blur(4px)",
+          }}
         >
-          Keluar
+          ☰
         </button>
+        {menuOpen && (
+          <div
+            style={{
+              position: "absolute",
+              top: 48,
+              right: 0,
+              width: 220,
+              background: "white",
+              borderRadius: 12,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+              padding: 14,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 13, color: "#333", wordBreak: "break-all" }}>
+              {email}
+              {isAdmin && (
+                <span
+                  style={{
+                    marginLeft: 6,
+                    background: "#0d6efd",
+                    color: "white",
+                    fontSize: 10,
+                    padding: "2px 6px",
+                    borderRadius: 999,
+                  }}
+                >
+                  admin
+                </span>
+              )}
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setShowAdmin(true);
+                }}
+                style={{
+                  background: "#198754",
+                  color: "white",
+                  border: 0,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 13,
+                }}
+              >
+                Pengaturan
+              </button>
+            )}
+            <button
+              onClick={signOut}
+              style={{
+                background: "#dc3545",
+                color: "white",
+                border: 0,
+                padding: "8px 12px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              Keluar
+            </button>
+          </div>
+        )}
       </div>
 
       <iframe
