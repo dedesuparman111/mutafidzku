@@ -53,7 +53,7 @@ function MutafidzApp() {
     <div style={{ position: "fixed", inset: 0 }}>
       <div style={{ position: "fixed", top: 12, right: 12, zIndex: 9999, fontFamily: "system-ui" }}>
         <button
-          onClick={() => setMenuOpen((o) => !o)}
+          onClick={() => setMenuOpen((o: boolean) => !o)}
           title="Menu pengguna"
           style={{
             width: 40,
