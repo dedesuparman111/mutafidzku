@@ -27,7 +27,7 @@ function AuthPage() {
     (async () => {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
-        navigate({ to: "/" });
+        navigate({ to: "/app" });
         return;
       }
       try {
@@ -49,7 +49,7 @@ function AuthPage() {
       }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw new Error(error.message);
-      navigate({ to: "/" });
+      navigate({ to: "/app" });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Login gagal");
     } finally {
