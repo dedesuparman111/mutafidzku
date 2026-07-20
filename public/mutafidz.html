@@ -746,7 +746,8 @@
 
     function mapStudentRow(r) {
       return {
-        ID: r.id,
+        ID: r.code || r.id,
+        _uuid: r.id,
         Name: r.name,
         BirthPlace: r.place_of_birth || '',
         BirthDate: r.date_of_birth || '',
@@ -761,7 +762,7 @@
       try {
         if (action === 'getStudents') {
           const { data, error } = await sb.from('students')
-            .select('id,name,place_of_birth,date_of_birth,class_name,guardian')
+            .select('id,code,name,place_of_birth,date_of_birth,class_name,guardian')
             .order('name', { ascending: true });
           if (error) throw error;
           return { success: true, data: (data || []).map(mapStudentRow) };
@@ -781,20 +782,22 @@
           return { success: true, data: mapStudentRow(data) };
         }
         if (action === 'updateStudent') {
-          const id = payload.id || payload.ID;
+          const key = payload.id || payload.ID;
+          const col = (typeof key === 'string' && key.length === 36 && key.includes('-')) ? 'id' : 'code';
           const { data, error } = await sb.from('students').update({
             name: payload.Name,
             place_of_birth: payload.BirthPlace || null,
             date_of_birth: payload.BirthDate || null,
             class_name: payload.Class || null,
             guardian: payload.Guardian || null
-          }).eq('id', id).select().single();
+          }).eq(col, key).select().single();
           if (error) throw error;
           return { success: true, data: mapStudentRow(data) };
         }
         if (action === 'deleteStudent') {
-          const id = payload.id || payload.ID;
-          const { error } = await sb.from('students').delete().eq('id', id);
+          const key = payload.id || payload.ID;
+          const col = (typeof key === 'string' && key.length === 36 && key.includes('-')) ? 'id' : 'code';
+          const { error } = await sb.from('students').delete().eq(col, key);
           if (error) throw error;
           return { success: true };
         }
