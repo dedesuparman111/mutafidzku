@@ -243,10 +243,11 @@ function AdminPanel({ onClose }: { onClose: () => void }) {
         background: "rgba(0,0,0,0.6)",
         zIndex: 10000,
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
         fontFamily: "system-ui",
-        padding: 16,
+        padding: 8,
+        overflowY: "auto",
       }}
       onClick={onClose}
     >
@@ -255,27 +256,29 @@ function AdminPanel({ onClose }: { onClose: () => void }) {
         style={{
           background: "white",
           borderRadius: 12,
-          padding: 20,
+          padding: 14,
           maxWidth: 780,
           width: "100%",
-          maxHeight: "90vh",
+          maxHeight: "calc(100vh - 16px)",
           overflow: "auto",
+          marginTop: 8,
+          marginBottom: 8,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 20 }}>Pengaturan Admin — Manajemen User</h2>
-          <button onClick={onClose} style={{ border: 0, background: "#eee", padding: "6px 12px", borderRadius: 8, cursor: "pointer" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, gap: 8 }}>
+          <h2 style={{ margin: 0, fontSize: 16, lineHeight: 1.2 }}>Pengaturan Admin</h2>
+          <button onClick={onClose} style={{ border: 0, background: "#eee", padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13, flexShrink: 0 }}>
             Tutup
           </button>
         </div>
 
-        {err && <div style={{ background: "#fee", color: "#900", padding: 8, borderRadius: 8, marginBottom: 12 }}>{err}</div>}
+        {err && <div style={{ background: "#fee", color: "#900", padding: 8, borderRadius: 8, marginBottom: 12, fontSize: 13, wordBreak: "break-word" }}>{err}</div>}
 
         <form
           onSubmit={createUser}
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr auto auto",
+            display: "flex",
+            flexDirection: "column",
             gap: 8,
             marginBottom: 16,
             padding: 12,
@@ -289,7 +292,7 @@ function AdminPanel({ onClose }: { onClose: () => void }) {
             required
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
-            style={{ padding: 8, border: "1px solid #ddd", borderRadius: 6 }}
+            style={{ padding: 10, border: "1px solid #ddd", borderRadius: 6, fontSize: 14, width: "100%", boxSizing: "border-box" }}
           />
           <input
             type="text"
@@ -298,64 +301,68 @@ function AdminPanel({ onClose }: { onClose: () => void }) {
             minLength={6}
             value={newPass}
             onChange={(e) => setNewPass(e.target.value)}
-            style={{ padding: 8, border: "1px solid #ddd", borderRadius: 6 }}
+            style={{ padding: 10, border: "1px solid #ddd", borderRadius: 6, fontSize: 14, width: "100%", boxSizing: "border-box" }}
           />
-          <select
-            value={newRole}
-            onChange={(e) => setNewRole(e.target.value as "admin" | "user")}
-            style={{ padding: 8, border: "1px solid #ddd", borderRadius: 6 }}
-          >
-            <option value="user">user</option>
-            <option value="admin">admin</option>
-          </select>
-          <button
-            type="submit"
-            disabled={busy}
-            style={{ padding: "8px 16px", background: "#198754", color: "white", border: 0, borderRadius: 6, cursor: "pointer" }}
-          >
-            {busy ? "..." : "Tambah"}
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <select
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value as "admin" | "user")}
+              style={{ padding: 10, border: "1px solid #ddd", borderRadius: 6, fontSize: 14, flex: 1 }}
+            >
+              <option value="user">user</option>
+              <option value="admin">admin</option>
+            </select>
+            <button
+              type="submit"
+              disabled={busy}
+              style={{ padding: "10px 16px", background: "#198754", color: "white", border: 0, borderRadius: 6, cursor: "pointer", fontSize: 14, flex: 1 }}
+            >
+              {busy ? "..." : "Tambah"}
+            </button>
+          </div>
         </form>
 
         {loading ? (
           <div>Memuat daftar user...</div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ background: "#f0f0f0" }}>
-                <th style={{ textAlign: "left", padding: 8 }}>Email</th>
-                <th style={{ textAlign: "left", padding: 8 }}>Role</th>
-                <th style={{ textAlign: "right", padding: 8 }}>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id} style={{ borderTop: "1px solid #eee" }}>
-                  <td style={{ padding: 8 }}>{u.email}</td>
-                  <td style={{ padding: 8 }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        borderRadius: 999,
-                        background: u.role === "admin" ? "#0d6efd" : "#6c757d",
-                        color: "white",
-                        fontSize: 12,
-                      }}
-                    >
-                      {u.role}
-                    </span>
-                  </td>
-                  <td style={{ padding: 8, textAlign: "right", whiteSpace: "nowrap" }}>
-                    <button onClick={() => toggleRole(u)} style={btnSm("#0d6efd")}>
-                      {u.role === "admin" ? "Jadikan user" : "Jadikan admin"}
-                    </button>{" "}
-                    <button onClick={() => resetPass(u)} style={btnSm("#ffc107")}>Reset PW</button>{" "}
-                    <button onClick={() => removeUser(u.id)} style={btnSm("#dc3545")}>Hapus</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {users.map((u) => (
+              <div
+                key={u.id}
+                style={{
+                  border: "1px solid #eee",
+                  borderRadius: 8,
+                  padding: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ fontSize: 13, wordBreak: "break-all", minWidth: 0, flex: 1 }}>{u.email}</div>
+                  <span
+                    style={{
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      background: u.role === "admin" ? "#0d6efd" : "#6c757d",
+                      color: "white",
+                      fontSize: 11,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {u.role}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <button onClick={() => toggleRole(u)} style={btnSm("#0d6efd")}>
+                    {u.role === "admin" ? "Jadikan user" : "Jadikan admin"}
+                  </button>
+                  <button onClick={() => resetPass(u)} style={btnSm("#ffc107")}>Reset PW</button>
+                  <button onClick={() => removeUser(u.id)} style={btnSm("#dc3545")}>Hapus</button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
@@ -363,5 +370,5 @@ function AdminPanel({ onClose }: { onClose: () => void }) {
 }
 
 function btnSm(bg: string): React.CSSProperties {
-  return { background: bg, color: "white", border: 0, padding: "4px 8px", borderRadius: 6, cursor: "pointer", fontSize: 12 };
+  return { background: bg, color: "white", border: 0, padding: "8px 10px", borderRadius: 6, cursor: "pointer", fontSize: 12, flex: "1 1 auto", minWidth: 90 };
 }
