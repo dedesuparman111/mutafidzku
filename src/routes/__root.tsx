@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Mutafidz PRO — Manajemen Hafalan & Murojaah Al-Qur'an" },
+      { name: "description", content: "Mutafidz PRO membantu pengajar dan santri mengelola hafalan, murojaah, dan progres tahfidz Al-Qur'an secara terstruktur, modern, dan mudah digunakan." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Mutafidz PRO — Manajemen Hafalan & Murojaah Al-Qur'an" },
+      { property: "og:description", content: "Mutafidz PRO membantu pengajar dan santri mengelola hafalan, murojaah, dan progres tahfidz Al-Qur'an secara terstruktur, modern, dan mudah digunakan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Mutafidz PRO — Manajemen Hafalan & Murojaah Al-Qur'an" },
+      { name: "twitter:description", content: "Mutafidz PRO membantu pengajar dan santri mengelola hafalan, murojaah, dan progres tahfidz Al-Qur'an secara terstruktur, modern, dan mudah digunakan." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/mYpfMpoozvY1ppyIvuh3SDqXRHQ2/social-images/social-1784595697641-icon-192.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/mYpfMpoozvY1ppyIvuh3SDqXRHQ2/social-images/social-1784595697641-icon-192.webp" },
     ],
     links: [
       {

@@ -9,11 +9,11 @@ export const Route = createFileRoute("/")({
         content:
           "Mutafidz PRO membantu pengajar dan santri mengelola hafalan, murojaah, dan progres tahfidz Al-Qur'an secara terstruktur, modern, dan mudah digunakan.",
       },
-      { property: "og:title", content: "Mutafidz PRO — Manajemen Hafalan Al-Qur'an" },
+      { property: "og:title", content: "Mutafidz PRO — Manajemen Hafalan & Murojaah Al-Qur'an" },
       {
         property: "og:description",
         content:
-          "Platform digital untuk pengelolaan santri, hafalan, dan murojaah Al-Qur'an.",
+          "Mutafidz PRO membantu pengajar dan santri mengelola hafalan, murojaah, dan progres tahfidz Al-Qur'an secara terstruktur, modern, dan mudah digunakan.",
       },
       { property: "og:type", content: "website" },
     ],
