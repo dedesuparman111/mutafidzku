@@ -40,9 +40,7 @@ function Landing() {
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
-              M
-            </div>
+            <img src="/icon-192.png" alt="Mutafidz PRO" className="h-9 w-9 rounded-xl" />
             <span className="text-lg font-bold tracking-tight">Mutafidz PRO</span>
           </div>
           <nav className="flex items-center gap-2">
