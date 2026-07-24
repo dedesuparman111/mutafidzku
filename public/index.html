@@ -1444,7 +1444,7 @@
       const payload = {
         id:           getVal('mur-id'),
         Date:         getVal('mur-date'),
-        Student_ID:   selS,
+        Student_ID:   stObj._uuid || selS,
         Student_Name: stObj.Name,
         Surah:        `${srObj.number}. ${srObj.englishName} (${srObj.name})`,
         Notes:        getVal('mur-notes')
