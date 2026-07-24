@@ -14,6 +14,7 @@ function MutafidzApp() {
   const [email, setEmail] = useState("");
   const [showAdmin, setShowAdmin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showChangePw, setShowChangePw] = useState(false);
 
   useEffect(() => {
     (async () => {
