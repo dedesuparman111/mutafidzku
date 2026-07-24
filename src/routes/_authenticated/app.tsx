@@ -14,6 +14,7 @@ function MutafidzApp() {
   const [email, setEmail] = useState("");
   const [showAdmin, setShowAdmin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showChangePw, setShowChangePw] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -125,6 +126,23 @@ function MutafidzApp() {
               </button>
             )}
             <button
+              onClick={() => {
+                setMenuOpen(false);
+                setShowChangePw(true);
+              }}
+              style={{
+                background: "#0d6efd",
+                color: "white",
+                border: 0,
+                padding: "8px 12px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              Ganti Password
+            </button>
+            <button
               onClick={signOut}
               style={{
                 background: "#dc3545",
@@ -149,6 +167,56 @@ function MutafidzApp() {
       />
 
       {showAdmin && isAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
+      {showChangePw && <ChangePasswordModal onClose={() => setShowChangePw(false)} />}
+    </div>
+  );
+}
+
+function ChangePasswordModal({ onClose }: { onClose: () => void }) {
+  const [pw, setPw] = useState("");
+  const [pw2, setPw2] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [ok, setOk] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(null);
+    if (pw.length < 6) { setErr("Password minimal 6 karakter"); return; }
+    if (pw !== pw2) { setErr("Konfirmasi password tidak cocok"); return; }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    setBusy(false);
+    if (error) { setErr(error.message); return; }
+    setOk(true);
+    setPw(""); setPw2("");
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "system-ui", padding: 12 }}
+    >
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: 12, padding: 16, width: "100%", maxWidth: 380 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h3 style={{ margin: 0, fontSize: 16 }}>Ganti Password</h3>
+          <button onClick={onClose} style={{ border: 0, background: "#eee", padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Tutup</button>
+        </div>
+        {ok ? (
+          <div style={{ background: "#d1e7dd", color: "#0f5132", padding: 10, borderRadius: 8, fontSize: 13 }}>
+            Password berhasil diperbarui.
+          </div>
+        ) : (
+          <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {err && <div style={{ background: "#fee", color: "#900", padding: 8, borderRadius: 8, fontSize: 13 }}>{err}</div>}
+            <input type="password" placeholder="Password baru" value={pw} onChange={(e) => setPw(e.target.value)} required minLength={6} style={{ padding: 10, border: "1px solid #ddd", borderRadius: 6, fontSize: 14 }} />
+            <input type="password" placeholder="Konfirmasi password" value={pw2} onChange={(e) => setPw2(e.target.value)} required minLength={6} style={{ padding: 10, border: "1px solid #ddd", borderRadius: 6, fontSize: 14 }} />
+            <button type="submit" disabled={busy} style={{ padding: "10px 16px", background: "#0d6efd", color: "white", border: 0, borderRadius: 6, cursor: "pointer", fontSize: 14 }}>
+              {busy ? "Menyimpan..." : "Simpan"}
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
