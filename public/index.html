@@ -1315,7 +1315,7 @@
       const payload = {
         id:           getVal('mem-id'),
         Date:         getVal('mem-date'),
-        Student_ID:   selS,
+        Student_ID:   stObj._uuid || selS,
         Student_Name: stObj.Name,
         Surah:        `${srObj.number}. ${srObj.englishName} (${srObj.name})`,
         Total_Verses: getVal('mem-verses'),
