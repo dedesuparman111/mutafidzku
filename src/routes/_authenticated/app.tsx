@@ -126,6 +126,23 @@ function MutafidzApp() {
               </button>
             )}
             <button
+              onClick={() => {
+                setMenuOpen(false);
+                setShowChangePw(true);
+              }}
+              style={{
+                background: "#0d6efd",
+                color: "white",
+                border: 0,
+                padding: "8px 12px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: 13,
+              }}
+            >
+              Ganti Password
+            </button>
+            <button
               onClick={signOut}
               style={{
                 background: "#dc3545",
