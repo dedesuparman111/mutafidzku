@@ -802,8 +802,118 @@
           return { success: true };
         }
         if (action === 'getDashboardData') {
-          const { count } = await sb.from('students').select('*', { count: 'exact', head: true });
-          return { success: true, data: { totalStudents: count || 0 } };
+          const { count: sc } = await sb.from('students').select('*', { count: 'exact', head: true });
+          const { count: mc } = await sb.from('memorization').select('*', { count: 'exact', head: true });
+          const { count: rc } = await sb.from('murojaah').select('*', { count: 'exact', head: true });
+          return { success: true, data: { totalStudents: sc || 0, totalMemorizations: mc || 0, totalMurojaahs: rc || 0 } };
+        }
+
+        // ---------- MEMORIZATION ----------
+        const mapMemRow = (r, nameMap) => {
+          const m = String(r.notes || '').match(/^\[Salah:(\d+)\]\s?/);
+          return {
+            ID: r.id,
+            Date: r.date,
+            Student_ID: r.student_id,
+            Student_Name: nameMap ? (nameMap.get(r.student_id) || '') : '',
+            Surah: r.surah || '',
+            Total_Verses: r.to_ayah || '',
+            Mistakes: m ? m[1] : '0',
+            Score: r.score != null ? r.score : '',
+            Notes: m ? String(r.notes).slice(m[0].length) : (r.notes || '')
+          };
+        };
+        const buildMemPayload = async (payload) => {
+          const { data: u } = await sb.auth.getUser();
+          if (!u.user) throw new Error('Belum login');
+          const mistakes = parseInt(payload.Mistakes || '0', 10) || 0;
+          const notes = `[Salah:${mistakes}] ${payload.Notes || ''}`.trim();
+          return {
+            user_id: u.user.id,
+            student_id: payload.Student_ID,
+            date: payload.Date,
+            surah: payload.Surah,
+            to_ayah: payload.Total_Verses ? parseInt(payload.Total_Verses, 10) : null,
+            score: payload.Score !== '' && payload.Score != null ? Number(payload.Score) : null,
+            notes: notes
+          };
+        };
+        if (action === 'getMemorizations') {
+          const { data, error } = await sb.from('memorization').select('*').order('date', { ascending: false });
+          if (error) throw error;
+          const ids = [...new Set((data || []).map(r => r.student_id).filter(Boolean))];
+          const nameMap = new Map();
+          if (ids.length) {
+            const { data: sts } = await sb.from('students').select('id,name').in('id', ids);
+            (sts || []).forEach(s => nameMap.set(s.id, s.name));
+          }
+          return { success: true, data: (data || []).map(r => mapMemRow(r, nameMap)) };
+        }
+        if (action === 'addMemorization') {
+          const row = await buildMemPayload(payload);
+          const { data, error } = await sb.from('memorization').insert(row).select().single();
+          if (error) throw error;
+          return { success: true, data: mapMemRow(data) };
+        }
+        if (action === 'updateMemorization') {
+          const row = await buildMemPayload(payload);
+          delete row.user_id;
+          const { data, error } = await sb.from('memorization').update(row).eq('id', payload.id).select().single();
+          if (error) throw error;
+          return { success: true, data: mapMemRow(data) };
+        }
+        if (action === 'deleteMemorization') {
+          const id = payload.id || payload.ID;
+          const { error } = await sb.from('memorization').delete().eq('id', id);
+          if (error) throw error;
+          return { success: true };
+        }
+
+        // ---------- MUROJAAH ----------
+        const mapMurRow = (r, nameMap) => ({
+          ID: r.id,
+          Date: r.date,
+          Student_ID: r.student_id,
+          Student_Name: nameMap ? (nameMap.get(r.student_id) || '') : '',
+          Surah: r.surah || '',
+          Notes: r.notes || ''
+        });
+        if (action === 'getMurojaahs') {
+          const { data, error } = await sb.from('murojaah').select('*').order('date', { ascending: false });
+          if (error) throw error;
+          const ids = [...new Set((data || []).map(r => r.student_id).filter(Boolean))];
+          const nameMap = new Map();
+          if (ids.length) {
+            const { data: sts } = await sb.from('students').select('id,name').in('id', ids);
+            (sts || []).forEach(s => nameMap.set(s.id, s.name));
+          }
+          return { success: true, data: (data || []).map(r => mapMurRow(r, nameMap)) };
+        }
+        if (action === 'addMurojaah' || action === 'updateMurojaah') {
+          const { data: u } = await sb.auth.getUser();
+          if (!u.user) throw new Error('Belum login');
+          const row = {
+            student_id: payload.Student_ID,
+            date: payload.Date,
+            surah: payload.Surah,
+            notes: payload.Notes || null
+          };
+          if (action === 'addMurojaah') {
+            row.user_id = u.user.id;
+            const { data, error } = await sb.from('murojaah').insert(row).select().single();
+            if (error) throw error;
+            return { success: true, data: mapMurRow(data) };
+          } else {
+            const { data, error } = await sb.from('murojaah').update(row).eq('id', payload.id).select().single();
+            if (error) throw error;
+            return { success: true, data: mapMurRow(data) };
+          }
+        }
+        if (action === 'deleteMurojaah') {
+          const id = payload.id || payload.ID;
+          const { error } = await sb.from('murojaah').delete().eq('id', id);
+          if (error) throw error;
+          return { success: true };
         }
       } catch (err) {
         console.error('[Supabase '+action+']', err);
